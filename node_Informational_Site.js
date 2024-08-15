@@ -1,36 +1,24 @@
-const http = require('node:http');
-const fs = require('node:fs/promises');
+const express = require("express");
+const fs = require('node:fs');
 
-// Create a local server to receive data from
-const server = http.createServer((req, res) =>
-{
-    whatToSend(req, res)
-});
+const app = express();
 
-server.listen(8080);
+app.get(['/','/index'], function (req, res) {
+    res.send(fs.readFileSync('index.html', { encoding: 'utf-8' }))
+})
 
+app.get('/contact_me', function (req, res) {
+    res.send(fs.readFileSync('contact_me.html', { encoding: 'utf-8' }))
+})
 
+app.get('/about', function (req, res) {
+    res.send(fs.readFileSync('about.html', { encoding: 'utf-8' }))
+})
 
-async function whatToSend(req, res)
-{
-    let contentToSend;
-    if (req.url === '/' || req.url === '/index')
-    {
-        contentToSend = await fs.readFile('index.html', { encoding: 'utf-8' })
-    }
-    else if (req.url === '/about')
-    {
-        contentToSend = await fs.readFile('about.html', { encoding: 'utf-8' })
-    }
-    else if (req.url === '/contact_me')
-    {
-        contentToSend = await fs.readFile('contact_me.html', { encoding: 'utf-8' })
-    }
-    else
-    {
-        contentToSend = await fs.readFile('404.html', { encoding: 'utf-8' })
-    }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write(contentToSend)
-    res.end();
-}
+app.get(/^\/\w+$/, function (req, res) {
+    res.send(fs.readFileSync('404.html', { encoding: 'utf-8' }))
+})
+
+app.listen(8080)
+
+console.log('Server Restarted')
